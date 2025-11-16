@@ -21,7 +21,8 @@ local function discover_integrations()
   -- Could be made dynamic by scanning the integrations directory
   local integration_names = {
     "telescope",
-    -- Add more as we implement them: "notify", "mason", etc.
+    "mason",
+    -- Add more as we implement them: "notify", "cmp", etc.
   }
 
   local integrations = {}
@@ -30,10 +31,12 @@ local function discover_integrations()
     if ok then
       table.insert(integrations, integration)
     else
-      vim.notify(
-        "Failed to load integration '" .. name .. "'",
-        vim.log.levels.WARN
-      )
+      vim.schedule(function()
+        vim.notify(
+          "Failed to load integration '" .. name .. "'",
+          vim.log.levels.WARN
+        )
+      end)
     end
   end
 
@@ -92,10 +95,12 @@ local function run_integration(integration, colors, config)
   -- Run integration
   local ok, highlights = pcall(integration.setup, colors, plugin_config)
   if not ok then
-    vim.notify(
-      "Integration '" .. integration.name .. "' failed: " .. tostring(highlights),
-      vim.log.levels.WARN
-    )
+    vim.schedule(function()
+      vim.notify(
+        "Integration '" .. integration.name .. "' failed: " .. tostring(highlights),
+        vim.log.levels.WARN
+      )
+    end)
     return
   end
 
@@ -120,20 +125,22 @@ function M.setup(user_config)
   -- Step 1: Load and validate configuration
   local config, err = config_module.load(user_config)
   if not config then
-    vim.notify(
-      "nvim-harmony configuration error: " .. tostring(err),
-      vim.log.levels.ERROR
-    )
+    vim.schedule(function()
+      vim.notify(
+        "nvim-harmony configuration error: " .. tostring(err),
+        vim.log.levels.ERROR
+      )
+    end)
     return
   end
 
-  vim.notify("nvim-harmony: Configuration loaded", vim.log.levels.INFO)
+  vim.notify("nvim-harmony: Configuration loaded", vim.log.levels.DEBUG)
 
   -- Step 2: Extract colors (loads colorscheme + extracts/generates palette)
   local colors = extraction.extract(config.colorscheme, config.colors)
   vim.notify(
     "nvim-harmony: Colors extracted for " .. config.colorscheme.name,
-    vim.log.levels.INFO
+    vim.log.levels.DEBUG
   )
 
   -- Step 3: Icons are already merged in config (via config_module.get_icons())
@@ -143,14 +150,29 @@ function M.setup(user_config)
   local integrations = discover_integrations()
   vim.notify(
     "nvim-harmony: Found " .. #integrations .. " integration(s)",
-    vim.log.levels.INFO
+    vim.log.levels.DEBUG
   )
 
   for _, integration in ipairs(integrations) do
     run_integration(integration, colors, config)
   end
 
-  vim.notify("nvim-harmony: Setup complete", vim.log.levels.INFO)
+  -- Re-apply integrations after colorscheme loads/changes
+  -- This ensures harmony's highlights override colorscheme's telescope integration
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("HarmonyReapplyIntegrations", { clear = true }),
+    callback = function()
+      -- Re-run integrations to reapply highlight groups
+      for _, integration in ipairs(integrations) do
+        run_integration(integration, colors, config)
+      end
+    end,
+  })
+
+  -- Only show success notification, deferred so nvim-notify can handle it
+  vim.schedule(function()
+    vim.notify("nvim-harmony loaded successfully", vim.log.levels.INFO)
+  end)
 end
 
 ---Get the current color palette (for advanced users)
@@ -186,5 +208,11 @@ M.format_cmp_item = helpers.format_cmp_item
 M.cmp_window = helpers.cmp_window
 M.lsp_hover = helpers.lsp_hover
 M.lsp_signature = helpers.lsp_signature
+
+-- Expose presets for automatic plugin configuration
+M.presets = require("harmony.presets")
+
+-- Expose builtins for early setup in init block
+M.builtins = require("harmony.builtins")
 
 return M

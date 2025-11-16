@@ -111,6 +111,14 @@ formatting = {
 
 ## Telescope
 
+**What Harmony provides:**
+- 🎨 Highlight groups (borders, backgrounds, titles, selection, matching text)
+- 🔲 Border characters via `harmony.telescope_borderchars()`
+
+**What you configure:**
+- 🔍 Prompt icon (`prompt_prefix`) - Harmony only colors it, you choose the icon
+- ⚙️ All other telescope settings (layout, keymaps, etc.)
+
 ```lua
 {
   "nvim-telescope/telescope.nvim",
@@ -126,7 +134,7 @@ formatting = {
         borderchars = harmony.telescope_borderchars(),  -- ← Use harmony borders
 
         -- Your custom config (prompts, layout, etc.)
-        prompt_prefix = "   ",
+        prompt_prefix = "   ",  -- ← You choose the icon, harmony colors it
         selection_caret = " ",
         entry_prefix = " ",
 
@@ -160,6 +168,14 @@ formatting = {
 ---
 
 ## Mason (LSP Installer)
+
+**What Harmony provides:**
+- 🎨 Highlight groups (headers, highlights, muted text, status colors)
+- 🔲 Border style via `harmony.border()`
+
+**What you configure:**
+- ⚙️ UI icons (installed, pending, uninstalled)
+- ⚙️ Mason settings (install path, max concurrent installers, etc.)
 
 ```lua
 {

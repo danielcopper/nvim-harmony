@@ -203,10 +203,12 @@ function M.extract(cs_config, color_overrides)
   local ok, err = pcall(vim.cmd.colorscheme, colorscheme_cmd)
 
   if not ok then
-    vim.notify(
-      "Failed to load colorscheme '" .. colorscheme_cmd .. "': " .. tostring(err),
-      vim.log.levels.ERROR
-    )
+    vim.schedule(function()
+      vim.notify(
+        "Failed to load colorscheme '" .. colorscheme_cmd .. "': " .. tostring(err),
+        vim.log.levels.ERROR
+      )
+    end)
     -- Continue with default colors
   end
 

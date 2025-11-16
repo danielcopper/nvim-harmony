@@ -10,8 +10,12 @@
 
   For lazy.nvim, add to your plugins:
   {
-    dir = "~/Repos/nvim-harmony",
+    "danielcopper/nvim-harmony",
     name = "harmony",
+    dependencies = {
+      "catppuccin/nvim",                -- Your colorscheme
+      "nvim-telescope/telescope.nvim",  -- Plugins you want to theme
+    },
     config = function()
       require('harmony').setup({
         -- your config here

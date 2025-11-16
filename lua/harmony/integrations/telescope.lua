@@ -18,6 +18,16 @@ return {
     local prompt_bg = utils.get_distinct_bg(colors, colors.float_bg, 3)
     local bg = config.transparency.enabled and "NONE" or colors.float_bg
 
+    -- Title backgrounds (inspired by NvChad base46)
+    -- Use specific colors for each title section
+    -- For catppuccin: maroon (dark red), green, sapphire (blue-green)
+    local title_fg = colors.bg_darker or colors.bg or "#000000" -- Dark text for colored backgrounds
+
+    -- Get catppuccin-specific colors if available, otherwise use semantic colors
+    local prompt_title_bg = (colors.catppuccin and colors.catppuccin.maroon) or colors.error
+    local preview_title_bg = (colors.catppuccin and colors.catppuccin.green) or colors.accent_1
+    local results_title_bg = (colors.catppuccin and colors.catppuccin.sapphire) or colors.accent_2
+
     return {
       -- Main window
       TelescopeNormal = {
@@ -42,13 +52,13 @@ return {
       },
 
       TelescopePromptTitle = {
-        fg = colors.accent_2 or colors.info,
-        bg = config.transparency.enabled and "NONE" or prompt_bg,
+        fg = title_fg,
+        bg = config.transparency.enabled and "NONE" or prompt_title_bg,
         bold = true,
       },
 
       TelescopePromptPrefix = {
-        fg = colors.accent_1 or colors.info,
+        fg = prompt_title_bg,
         bg = config.transparency.enabled and "NONE" or prompt_bg,
       },
 
@@ -69,8 +79,8 @@ return {
       },
 
       TelescopeResultsTitle = {
-        fg = colors.accent_2 or colors.info,
-        bg = bg,
+        fg = title_fg,
+        bg = config.transparency.enabled and "NONE" or results_title_bg,
         bold = true,
       },
 
@@ -86,8 +96,8 @@ return {
       },
 
       TelescopePreviewTitle = {
-        fg = colors.accent_2 or colors.info,
-        bg = bg,
+        fg = title_fg,
+        bg = config.transparency.enabled and "NONE" or preview_title_bg,
         bold = true,
       },
 
