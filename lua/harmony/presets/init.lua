@@ -172,16 +172,16 @@ end
 ---@param user_opts table|nil User configuration
 ---@return table Merged configuration
 function M.gitsigns(user_opts)
-  local icons = get_icons()
-
+  -- Use simple vertical bar for signs column (default gitsigns style)
+  -- Colors are handled by gitsigns highlight groups
   local harmony_opts = {
     signs = {
-      add = { text = icons.git.add },
-      change = { text = icons.git.change },
-      delete = { text = icons.git.delete },
-      topdelete = { text = icons.git.delete },
-      changedelete = { text = icons.git.change },
-      untracked = { text = icons.git.untracked },
+      add = { text = "│" },
+      change = { text = "│" },
+      delete = { text = "_" },
+      topdelete = { text = "‾" },
+      changedelete = { text = "~" },
+      untracked = { text = "┆" },
     },
   }
 
