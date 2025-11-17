@@ -6,9 +6,9 @@ local M = {}
 ---Diagnostic icons (errors, warnings, info, hints)
 M.diagnostics = {
   error = "󰅚",
-  warn = "󰀪",
-  info = "󰋽",
   hint = "󰌶",
+  info = "󰋽",
+  warn = "󰀪",
 }
 
 ---LSP completion item kind icons
@@ -60,14 +60,14 @@ M.lsp = {
 ---Git status icons
 M.git = {
   add       = " ",
-  change    = " ",
-  delete    = " ",
-  renamed   = "󰁕 ",
-  untracked = " ",
-  ignored   = "󰈉 ",
-  staged    = " ",
-  conflict  = " ",
   branch    = " ",
+  change    = " ",
+  conflict  = " ",
+  delete    = " ",
+  ignored   = "󰈉 ",
+  renamed   = "󰁕 ",
+  staged    = " ",
+  untracked = " ",
 }
 
 ---Debug Adapter Protocol (DAP) icons
@@ -75,32 +75,34 @@ M.dap = {
   breakpoint = " ",
   breakpoint_condition = " ",
   breakpoint_rejected = " ",
-  stopped = "󰁕 ",
   log_point = ".>",
+  stopped = "󰁕 ",
 }
 
 ---General UI icons
 M.ui = {
-  folder = "󰉋 ",
-  folder_open = " ",
-  folder_empty = " ",
+  arrow_left = " ",
+  arrow_right = " ",
+  check = " ",
+  close = "󰅗 ",
   file = "󰈙 ",
+  foldclose = "",
+  folder = "󰉋 ",
+  folder_empty = " ",
+  folder_open = " ",
+  foldopen = "",
+  foldsep = "│",
+  loading = "󰝲 ",
+  lock = " ",
+  lsp = "󰣖 ",
+  modified = "● ",
+  nvim = " ",
+  package = "󰏖 ",
+  prompt = "󰠗 ",
+  search = " ",
+  spinner = " ",
   symlink_file = " ",
   symlink_folder = " ",
-  lock = " ",
-  package = "󰏖 ",
-  search = " ",
-  close = "󰅗 ",
-  check = " ",
-  prompt = "󰠗 ",
-  modified = "● ",
-  arrow_right = " ",
-  arrow_left = " ",
-  spinner = " ",
-  loading = "󰝲 ",
-  foldopen = "",
-  foldclose = "",
-  foldsep = "│",
   -- Fillchars (vim.opt.fillchars)
   eob = " ",
   diff = "╱",

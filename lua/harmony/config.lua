@@ -36,6 +36,26 @@ local defaults = {
   colors = {},
   icons = {},
   overrides = {},
+
+  lualine = {
+    -- Visual preset style (default, rounded, square, slant, minimal, bubble)
+    preset = nil, -- nil means use default
+
+    -- Left side components
+    left = {
+      preset = nil,
+      sections = nil, -- nil means use defaults: { "mode", "branch", "git" }
+    },
+
+    -- Middle section components
+    middle = nil, -- nil means use defaults: {}
+
+    -- Right side components
+    right = {
+      preset = nil,
+      sections = nil, -- nil means use defaults: { "diagnostics", "lsp", "filetype", "position", "progress", "root_dir" }
+    },
+  },
 }
 
 ---Valid border styles (Neovim built-ins)
@@ -112,6 +132,153 @@ local function validate_spacing(spacing, name)
     if spacing[key] and type(spacing[key]) ~= "number" then
       return false, name .. "." .. key .. " must be a number"
     end
+  end
+
+  return true
+end
+
+---Valid lualine presets
+local valid_lualine_presets = {
+  "default",
+  "rounded",
+  "square",
+  "slant",
+  "minimal",
+  "bubble",
+}
+
+---Valid lualine component names
+local valid_lualine_components = {
+  "mode",
+  "file",
+  "branch",
+  "git",
+  "diagnostics",
+  "lsp",
+  "filetype",
+  "position",
+  "progress",
+  "root_dir",
+}
+
+---Validate lualine section config
+---@param section table|string|nil Section config
+---@param section_name string Section name for error messages
+---@return boolean, string|nil Valid, error message
+local function validate_lualine_section(section, section_name)
+  if section == nil then
+    return true
+  end
+
+  -- Can be a string preset name
+  if type(section) == "string" then
+    for _, preset in ipairs(valid_lualine_presets) do
+      if section == preset then
+        return true
+      end
+    end
+    return false, "lualine." .. section_name .. " must be a valid preset: " .. table.concat(valid_lualine_presets, ", ")
+  end
+
+  -- Or a table with preset and/or sections
+  if type(section) ~= "table" then
+    return false, "lualine." .. section_name .. " must be a table or string"
+  end
+
+  -- Validate preset if present
+  if section.preset then
+    if type(section.preset) ~= "string" then
+      return false, "lualine." .. section_name .. ".preset must be a string"
+    end
+
+    local valid = false
+    for _, preset in ipairs(valid_lualine_presets) do
+      if section.preset == preset then
+        valid = true
+        break
+      end
+    end
+
+    if not valid then
+      return false, "lualine." .. section_name .. ".preset must be one of: " .. table.concat(valid_lualine_presets, ", ")
+    end
+  end
+
+  -- Validate sections if present
+  if section.sections then
+    if type(section.sections) ~= "table" then
+      return false, "lualine." .. section_name .. ".sections must be a table"
+    end
+
+    for i, component in ipairs(section.sections) do
+      if type(component) ~= "string" then
+        return false, "lualine." .. section_name .. ".sections[" .. i .. "] must be a string"
+      end
+
+      local valid = false
+      for _, valid_component in ipairs(valid_lualine_components) do
+        if component == valid_component then
+          valid = true
+          break
+        end
+      end
+
+      if not valid then
+        return false, "lualine." .. section_name .. ".sections[" .. i .. "] invalid component '" .. component .. "'. Valid: " .. table.concat(valid_lualine_components, ", ")
+      end
+    end
+  end
+
+  return true
+end
+
+---Validate lualine config
+---@param lualine table|nil Lualine config
+---@return boolean, string|nil Valid, error message
+local function validate_lualine(lualine)
+  if lualine == nil then
+    return true
+  end
+
+  if type(lualine) ~= "table" then
+    return false, "lualine must be a table"
+  end
+
+  -- Validate global preset
+  if lualine.preset then
+    if type(lualine.preset) ~= "string" then
+      return false, "lualine.preset must be a string"
+    end
+
+    local valid = false
+    for _, preset in ipairs(valid_lualine_presets) do
+      if lualine.preset == preset then
+        valid = true
+        break
+      end
+    end
+
+    if not valid then
+      return false, "lualine.preset must be one of: " .. table.concat(valid_lualine_presets, ", ")
+    end
+  end
+
+  -- Validate left section
+  local ok, err = validate_lualine_section(lualine.left, "left")
+  if not ok then
+    return false, err
+  end
+
+  -- Validate middle section
+  ok, err = validate_lualine_section(lualine.middle, "middle")
+  if not ok then
+    return false, err
+  end
+
+  -- Validate right section
+  ok, err = validate_lualine_section(lualine.right, "right")
+  if not ok then
+    return false, err
   end
 
   return true
@@ -205,6 +372,14 @@ local function validate_config(config)
           return false, "overrides." .. plugin_name .. "." .. err
         end
       end
+    end
+  end
+
+  -- Validate lualine (optional)
+  if config.lualine then
+    ok, err = validate_lualine(config.lualine)
+    if not ok then
+      return false, err
     end
   end
 

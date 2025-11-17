@@ -237,37 +237,66 @@ end
 ---@param user_opts table|nil User configuration
 ---@return table Merged configuration
 function M.lualine(user_opts)
-  local icons = get_icons()
+  -- Get harmony config for lualine
+  local harmony_config = require("harmony.config").get()
+  local lualine_config = harmony_config.lualine or {}
 
-  local harmony_opts = {
-    options = {
-      icons_enabled = true,
-    },
-    sections = {
-      lualine_b = {
-        {
-          "diagnostics",
-          symbols = {
-            error = icons.diagnostics.error .. " ",
-            warn = icons.diagnostics.warn .. " ",
-            info = icons.diagnostics.info .. " ",
-            hint = icons.diagnostics.hint .. " ",
-          },
-        },
-      },
-    },
-  }
+  -- Generate lualine options based on harmony config
+  local config_generator = require("harmony.integrations.lualine.config")
+  local generated_opts = config_generator.generate(lualine_config)
 
-  return soft_merge(user_opts, harmony_opts)
+  -- Get theme from integration (if available)
+  local ok, integration = pcall(require, "harmony.integrations.lualine")
+  if ok and integration.get_theme then
+    local theme = integration.get_theme()
+    if theme then
+      generated_opts.options.theme = theme
+    end
+  end
+
+  -- Merge with user's direct lualine opts (user opts take precedence)
+  return soft_merge(user_opts, generated_opts)
 end
 
 ---Get noice default configuration
 ---@param user_opts table|nil User configuration
 ---@return table Merged configuration
 function M.noice(user_opts)
+  local border = get_border()
+
+  -- Adjust cmdline popup padding based on border style
+  -- When borders are disabled, add vertical padding to make the field bigger
+  local cmdline_padding = border == "none" and { 1, 1 } or { 0, 1 }
+
   local harmony_opts = {
     presets = {
-      lsp_doc_border = get_border() ~= "none",
+      lsp_doc_border = border ~= "none",
+    },
+    views = {
+      cmdline_popup = {
+        border = {
+          style = border,
+          padding = cmdline_padding,
+        },
+      },
+      popupmenu = {
+        border = {
+          style = border,
+        },
+      },
+      popup = {
+        border = {
+          style = border,
+        },
+      },
+      split = {
+        border = border,
+      },
+      confirm = {
+        border = {
+          style = border,
+        },
+      },
     },
   }
 

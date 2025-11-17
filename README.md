@@ -115,14 +115,14 @@ Harmony uses three interconnected systems to achieve zero-touch theming:
 |--------|--------------|------------|---------|
 | telescope.nvim | ✅ | ✅ | Full support |
 | mason.nvim | ✅ | ✅ | Full support |
+| lualine.nvim | ✅ | ✅ | Full support |
+| noice.nvim | ✅ | ✅ | Full support |
 | nvim-cmp | ✅ | ⏳ | Config only |
 | nvim-notify | ✅ | ⏳ | Config only |
 | which-key.nvim | ✅ | ⏳ | Config only |
 | trouble.nvim | ✅ | ⏳ | Config only |
 | gitsigns.nvim | ✅ | ⏳ | Config only |
 | neo-tree.nvim | ✅ | ⏳ | Config only |
-| lualine.nvim | ✅ | ⏳ | Config only |
-| noice.nvim | ✅ | ⏳ | Config only |
 
 **Legend:**
 - ✅ Full support: Both config preset and custom highlights
@@ -172,6 +172,113 @@ require("harmony").setup({
   },
 })
 ```
+
+### Important: Let Harmony Manage Presets
+
+When using harmony's auto-configuration, **do not hardcode values that harmony manages** in your plugin configs. For example:
+
+**❌ Don't do this in your noice config:**
+```lua
+{
+  "folke/noice.nvim",
+  opts = {
+    presets = {
+      lsp_doc_border = true,  -- Don't hardcode! Harmony manages this based on borders setting
+    },
+  },
+}
+```
+
+**✅ Do this instead:**
+```lua
+{
+  "folke/noice.nvim",
+  opts = {
+    presets = {
+      -- Let harmony set lsp_doc_border based on your borders = "none" or "rounded" setting
+      bottom_search = true,  -- You can still set your own workflow preferences
+    },
+  },
+}
+```
+
+Harmony automatically configures:
+- Border styles for all plugins (based on your `borders` setting)
+- Icons (diagnostic symbols, LSP kinds, git icons)
+- Colors and highlights
+
+You configure:
+- Workflow preferences (like noice's `bottom_search`, `command_palette`)
+- Component layouts (like which lualine sections to show)
+- Keymaps and behavior
+
+### Lualine Configuration
+
+Harmony provides a powerful abstraction layer for lualine, allowing you to configure your statusline with a simple, declarative interface.
+
+**Simple preset style:**
+```lua
+require("harmony").setup({
+  -- ... other config ...
+  lualine = {
+    preset = "rounded",  -- "default", "rounded", "square", "slant", "minimal", "bubble"
+  },
+})
+```
+
+**Custom component layout:**
+```lua
+require("harmony").setup({
+  -- ... other config ...
+  lualine = {
+    preset = "rounded",
+    left = {
+      sections = { "mode", "branch", "git" },
+    },
+    right = {
+      sections = { "diagnostics", "lsp", "filetype", "position", "progress", "root_dir" },
+    },
+  },
+})
+```
+
+**Full control per section:**
+```lua
+require("harmony").setup({
+  -- ... other config ...
+  lualine = {
+    left = {
+      preset = "default",
+      sections = { "mode", "file", "branch" },
+    },
+    middle = {},
+    right = {
+      preset = "rounded",
+      sections = { "lsp", "diagnostics", "position" },
+    },
+  },
+})
+```
+
+**Available components:**
+- `mode` - Current mode indicator (NORMAL, INSERT, etc.)
+- `file` - Filename with modified/readonly indicators
+- `branch` - Git branch name
+- `git` - Git diff stats (added/modified/removed lines)
+- `diagnostics` - Diagnostic counts (errors, warnings, etc.)
+- `lsp` - Active LSP clients with cog icon
+- `filetype` - File encoding and type
+- `position` - Line and column number
+- `progress` - Percentage through file
+- `root_dir` - Project root directory
+
+**Visual presets:**
+- `default` - Powerline/chevron style separators
+- `rounded` - Rounded/pill style separators
+- `square` - Square/block style separators
+- `slant` - Diagonal/slanted separators
+- `minimal` - No separators
+- `bubble` - Rounded with gaps
 
 For complete configuration options, see [CONFIG.md](CONFIG.md).
 

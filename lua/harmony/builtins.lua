@@ -134,9 +134,11 @@ function M.setup_early(opts)
   opts = opts or {}
 
   -- Default: enable all built-in configurations
+  -- NOTE: lsp_handlers defaults to false because it requires config to be loaded
+  -- LSP handlers are set in harmony.setup() instead (config phase)
   local config = vim.tbl_deep_extend("force", {
     diagnostics = true,
-    lsp_handlers = true,
+    lsp_handlers = false,
     fillchars = true,
     listchars = true,
   }, opts)

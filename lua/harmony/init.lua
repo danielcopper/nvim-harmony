@@ -22,6 +22,8 @@ local function discover_integrations()
   local integration_names = {
     "telescope",
     "mason",
+    "lualine",
+    "noice",
     -- Add more as we implement them: "notify", "cmp", etc.
   }
 
@@ -156,6 +158,23 @@ function M.setup(user_config)
   for _, integration in ipairs(integrations) do
     run_integration(integration, colors, config)
   end
+
+  -- Re-apply LSP handlers with correct border style
+  -- This is needed because setup_early() runs before config is loaded
+  -- Note: For truly borderless windows, we need to pass an empty table or array, not "none"
+  local border_value = config.borders
+  if border_value == "none" then
+    border_value = {} -- Empty array = no border at all
+  end
+
+  vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+    vim.lsp.handlers.hover,
+    { border = border_value }
+  )
+  vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+    vim.lsp.handlers.signature_help,
+    { border = border_value }
+  )
 
   -- Re-apply integrations after colorscheme loads/changes
   -- This ensures harmony's highlights override colorscheme's telescope integration
