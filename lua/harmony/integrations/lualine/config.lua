@@ -8,7 +8,7 @@ local M = {}
 
 -- Default component layout
 local defaults = {
-  left = { "mode", "file", "branch", "git" },
+  left = { "mode", "file", "git_file", "branch", "git_repo" },
   middle = {},
   right = { "diagnostics", "lsp", "encoding", "position", "root_dir" },
 }

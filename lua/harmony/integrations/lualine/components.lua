@@ -28,14 +28,55 @@ M.branch = {
   icon = icons.git.branch,
 }
 
--- Git diff stats (added, modified, removed lines)
-M.git = {
+-- Git diff stats (current file only, from gitsigns)
+M.git_file = {
   "diff",
+  colored = true,
   symbols = {
     added = icons.git.add,
     modified = icons.git.change,
     removed = icons.git.delete,
   },
+  -- Let lualine's diff component handle visibility
+  -- It will automatically hide for non-file buffers and files without changes
+}
+
+-- Git diff stats (repository-wide)
+-- NOTE: This cannot use lualine's "diff" component because that only supports gitsigns (per-buffer)
+-- We need a custom function to get repository-wide stats
+M.git_repo = {
+  function()
+    -- Get repository-wide git status
+    local handle = io.popen("git -C " .. vim.fn.getcwd() .. " diff --shortstat 2>/dev/null")
+    if not handle then return "" end
+
+    local result = handle:read("*a")
+    handle:close()
+
+    if result == "" then return "" end
+
+    -- Parse: "X files changed, Y insertions(+), Z deletions(-)"
+    local files_changed = result:match("(%d+) file") or "0"
+    local added = result:match("(%d+) insertion") or "0"
+    local removed = result:match("(%d+) deletion") or "0"
+
+    -- Use lualine's diff highlight groups for coloring
+    local parts = {}
+    if tonumber(added) > 0 then
+      table.insert(parts, "%#lualine_c_diff_added_normal#" .. icons.git.add .. added .. "%*")
+    end
+    if tonumber(files_changed) > 0 then
+      table.insert(parts, "%#lualine_c_diff_modified_normal#" .. icons.git.change .. files_changed .. "%*")
+    end
+    if tonumber(removed) > 0 then
+      table.insert(parts, "%#lualine_c_diff_removed_normal#" .. icons.git.delete .. removed .. "%*")
+    end
+
+    return #parts > 0 and table.concat(parts, " ") or ""
+  end,
+  cond = function()
+    return vim.fn.isdirectory(".git") == 1
+  end,
 }
 
 -- Diagnostic counts with symbols and colors

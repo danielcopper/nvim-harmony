@@ -264,11 +264,13 @@ require("harmony").setup({
 - `mode` - Current mode indicator (NORMAL, INSERT, etc.)
 - `file` - Filename with modified/readonly indicators
 - `branch` - Git branch name
-- `git` - Git diff stats (added/modified/removed lines)
+- `git_file` - Git diff stats for current file (from gitsigns, hidden for non-file buffers)
+- `git_repo` - Repository-wide git diff stats (additions/changes/deletions with colors)
 - `diagnostics` - Diagnostic counts (errors, warnings, etc.)
 - `lsp` - Active LSP clients with cog icon
-- `filetype` - File encoding and type
-- `position` - Line and column number
+- `encoding` - File encoding (utf-8, etc.)
+- `filetype` - File type with icon
+- `position` - Line and column number with percentage
 - `progress` - Percentage through file
 - `root_dir` - Project root directory
 
